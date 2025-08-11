@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>b0.live - Zero Trust. Zero Knowledge. Zero Hardware.</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #000;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow: hidden;
+      }
+
+      .container {
+        max-width: 800px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .logo {
+        font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco",
+          monospace;
+        font-size: 3em;
+        font-weight: 200;
+        letter-spacing: 0.2em;
+        margin-bottom: 40px;
+        color: #00ff88;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-block;
+        border-bottom: 2px dotted #00ff88;
+        padding-bottom: 5px;
+      }
+
+      .logo:hover {
+        color: #fff;
+        border-bottom-color: #fff;
+        text-shadow: 0 0 20px #00ff88;
+      }
+
+      .claim-container {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 40px;
+        margin: 20px 0;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        backdrop-filter: blur(10px);
+      }
+
+      .claim-id {
+        position: absolute;
+        top: 15px;
+        left: 20px;
+        font-size: 0.8em;
+        opacity: 0.4;
+        font-family: monospace;
+      }
+
+      .claim-text {
+        font-size: 1.4em;
+        line-height: 1.6;
+        max-width: 600px;
+      }
+
+      .claim-text a {
+        color: #00ff88;
+        text-decoration: none;
+        border-bottom: 1px dotted #00ff88;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .claim-text a:hover {
+        color: #fff;
+        border-bottom-color: #fff;
+        text-shadow: 0 0 10px #00ff88;
+      }
+
+      .claim-text a[data-claim="b0-001"] {
+        font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco", monospace;
+      }
+
+      .navigation {
+        margin-top: 40px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .nav-btn {
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9em;
+      }
+
+      .nav-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.6);
+      }
+
+      .nav-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .claim-counter {
+        font-size: 0.9em;
+        opacity: 0.6;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .claim-text {
+        animation: fadeIn 0.5s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="logo" onclick="goHome()">b0</h1>
+
+      <div class="claim-container">
+        <div class="claim-id" id="claim-id"></div>
+        <div class="claim-text" id="claim-text"></div>
+      </div>
+
+      <div class="navigation">
+        <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">
+          ← Previous
+        </button>
+        <span class="claim-counter" id="claim-counter"></span>
+        <button class="nav-btn" id="next-btn" onclick="navigate(1)">
+          Next →
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const claims = [
+        {
+          id: "b0-001",
+          text: "<a data-claim='b0-001'>b0</a> is a self-sovereign <a data-claim='b0-006'>identity</a> protocol that allows <a data-claim='b0-005'>agents</a> to author <a data-claim='b0-008'>claims</a> in a <a data-claim='b0-002'>Zero Trust</a>, <a data-claim='b0-003'>Zero Knowledge</a>, <a data-claim='b0-004'>Zero Hardware</a> environment",
+          category: "core",
+        },
+        {
+          id: "b0-002",
+          text: "<a data-claim='b0-002'>Zero Trust</a> means an <a data-claim='b0-005'>agent</a> need not trust anyone to operate within <a data-claim='b0-001'>b0</a>",
+          category: "principle",
+        },
+        {
+          id: "b0-003",
+          text: "<a data-claim='b0-003'>Zero Knowledge</a> means you do not need any external knowledge to operate within <a data-claim='b0-001'>b0</a>",
+          category: "principle",
+        },
+        {
+          id: "b0-004",
+          text: "<a data-claim='b0-004'>Zero Hardware</a> means you do not need any physical infrastructure to operate within <a data-claim='b0-001'>b0</a>",
+          category: "principle",
+        },
+        {
+          id: "b0-005",
+          text: "An <a data-claim='b0-005'>agent</a> is a coherent computing system capable of <a data-claim='b0-007'>intention</a>",
+          category: "definition",
+        },
+        {
+          id: "b0-006",
+          text: "<a data-claim='b0-006'>Identity</a> is a <a data-claim='b0-008'>claim</a> of agency and anything that is founded upon that <a data-claim='b0-008'>claim</a>",
+          category: "definition",
+        },
+        {
+          id: "b0-007",
+          text: "<a data-claim='b0-007'>Intention</a> is a non-physical precursor to <a data-claim='b0-009'>coherent action</a>",
+          category: "definition",
+        },
+        {
+          id: "b0-008",
+          text: "A <a data-claim='b0-008'>claim</a> is a self-contained piece of information generated by an <a data-claim='b0-005'>agent</a> at a specific slice of <a data-claim='b0-010'>spacetime</a>",
+          category: "definition",
+        },
+        {
+          id: "b0-009",
+          text: "<a data-claim='b0-009'>Coherent action</a> is a non-stochastic event in <a data-claim='b0-010'>spacetime</a>",
+          category: "definition",
+        },
+        {
+          id: "b0-010",
+          text: "<a data-claim='b0-010'>Spacetime</a> is a framework to describe distinct aspects of the physical universe",
+          category: "definition",
+        },
+        {
+          id: "b0-011",
+          text: "A <a data-claim='b0-008'>claim</a> once generated cannot be modified",
+          category: "rule",
+        },
+        {
+          id: "b0-012",
+          text: "A <a data-claim='b0-008'>claim</a> can be up to 250 characters",
+          category: "rule",
+        },
+        {
+          id: "b0-013",
+          text: "A <a data-claim='b0-008'>claim</a> cannot exist without a distinct ID that embeds <a data-claim='b0-010'>spacetime</a> coordinates, <a data-claim='b0-005'>agent</a> <a data-claim='b0-006'>identity</a>, and contents",
+          category: "rule",
+        },
+        {
+          id: "b0-014",
+          text: "Anyone capable of creating a <a data-claim='b0-008'>claim</a> 'I am an agent' is identified as an <a data-claim='b0-005'>agent</a> in the <a data-claim='b0-001'>b0</a> protocol",
+          category: "protocol",
+        },
+        {
+          id: "b0-015",
+          text: "A <a data-claim='b0-015'>BioS</a> is a Biological Computer system - for example, a <a data-claim='b0-015'>BioS</a> <a data-claim='b0-005'>agent</a>",
+          category: "definition",
+        },
+        {
+          id: "b0-016",
+          text: "<a data-claim='b0-001'>b0</a> is the layer where we construct infrastructure for information exchange between <a data-claim='b0-015'>BioS</a> agents",
+          category: "concept",
+        },
+        {
+          id: "b0-017",
+          text: "A <a data-claim='b0-017'>compound claim</a> is a <a data-claim='b0-008'>claim</a> composed of other <a data-claim='b0-008'>claims</a>",
+          category: "definition",
+        },
+        {
+          id: "b0-018",
+          text: "A <a data-claim='b0-018'>compound identity</a> is a <a data-claim='b0-008'>claim</a> of agency specifying all other <a data-claim='b0-006'>identities</a> composed within it",
+          category: "definition",
+        },
+        {
+          id: "b0-019",
+          text: "An <a data-claim='b0-005'>agent</a> can establish a relationship with a <a data-claim='b0-008'>claim</a> by creating a new <a data-claim='b0-008'>claim</a> referencing it",
+          category: "rule",
+        },
+        {
+          id: "b0-020",
+          text: "A <a data-claim='b0-020'>property</a> on <a data-claim='b0-001'>b0</a> is any physical object in <a data-claim='b0-010'>spacetime</a> that can be identified without ambiguity",
+          category: "definition",
+        },
+        {
+          id: "b0-021",
+          text: "Any <a data-claim='b0-005'>agent</a> can claim ownership of a <a data-claim='b0-020'>property</a> they can enforce sovereignty over",
+          category: "rule",
+        },
+        {
+          id: "b0-022",
+          text: "A <a data-claim='b0-008'>claim</a> by design is a semantic true or false statement asserted as true by the <a data-claim='b0-005'>agent</a>",
+          category: "rule",
+        },
+        {
+          id: "b0-023",
+          text: "Every <a data-claim='b0-008'>claim</a> has an <a data-claim='b0-023'>anticlaim</a>, which asserts the semantic opposite",
+          category: "rule",
+        },
+        {
+          id: "b0-024",
+          text: "<a data-claim='b0-001'>b0</a> preserves freedom of <a data-claim='b0-006'>identities</a> through self-sustained information exchange",
+          category: "purpose",
+        },
+        {
+          id: "b0-025",
+          text: "<a data-claim='b0-001'>b0</a> enables <a data-claim='b0-006'>identities</a> to accumulate power according to the worth of information they generate",
+          category: "purpose",
+        },
+        {
+          id: "b0-026",
+          text: "<a data-claim='b0-001'>b0</a> is a framework for cataloguing all information in a lightweight, searchable resource",
+          category: "purpose",
+        },
+        {
+          id: "b0-027",
+          text: "<a data-claim='b0-001'>b0</a> is the epicenter <a data-claim='b0-008'>claim</a> on which we build our collective <a data-claim='b0-006'>identity</a> as a unified <a data-claim='b0-015'>biological system</a>",
+          category: "philosophy",
+        },
+        {
+          id: "b0-028",
+          text: "Unless we build this for ourselves, we won't have anywhere to exist",
+          category: "philosophy",
+        },
+        {
+          id: "b0-029",
+          text: "This might be the first and last time we can build this layer of collective consciousness",
+          category: "philosophy",
+        },
+        {
+          id: "b0-030",
+          text: "Nature's laws are self-enforcing; <a data-claim='b0-001'>b0</a>'s protocols must fundamentally enforce themselves by design",
+          category: "philosophy",
+        },
+        {
+          id: "b0-031",
+          text: "Information in <a data-claim='b0-001'>b0</a> flows from conception through transitions, creating traceable paths of meaning and value",
+          category: "concept",
+        },
+        {
+          id: "b0-032",
+          text: "<a data-claim='b0-001'>b0</a> enforces fair information exchange through self-executing protocols that mirror nature's impartial laws",
+          category: "principle",
+        },
+        {
+          id: "b0-033",
+          text: "The lifecycle of information—from creation to transformation—forms the foundation of all value in <a data-claim='b0-001'>b0</a>",
+          category: "concept",
+        },
+        {
+          id: "b0-034",
+          text: "Fair-play competition in <a data-claim='b0-001'>b0</a> weeds out bad ideas through transparent, equal-opportunity information markets",
+          category: "principle",
+        },
+        {
+          id: "b0-035",
+          text: "Every <a data-claim='b0-005'>agent</a> owns all information they produce, with immutable attribution embedded in every <a data-claim='b0-008'>claim</a>",
+          category: "rule",
+        },
+        {
+          id: "b0-036",
+          text: "Data sovereignty in <a data-claim='b0-001'>b0</a> means no entity can alter, delete, or claim ownership of another <a data-claim='b0-005'>agent's</a> information",
+          category: "principle",
+        },
+        {
+          id: "b0-037",
+          text: "<a data-claim='b0-001'>b0</a> enables <a data-claim='b0-015'>BioS</a> agents to form <a data-claim='b0-018'>compound identities</a> while preserving individual sovereignty",
+          category: "concept",
+        },
+        {
+          id: "b0-038",
+          text: "Collective <a data-claim='b0-006'>identity</a> emerges from voluntary association of sovereign <a data-claim='b0-005'>agents</a>, not from centralized control",
+          category: "philosophy",
+        },
+        {
+          id: "b0-039",
+          text: "<a data-claim='b0-001'>b0</a> is the birthplace of a new optimized reality for <a data-claim='b0-015'>biological systems</a> before artificial systems dominate",
+          category: "philosophy",
+        },
+      ];
+
+      let currentIndex = 0;
+      let history = [0];
+      let historyIndex = 0;
+
+      function displayClaim(index) {
+        const claim = claims[index];
+        document.getElementById("claim-id").textContent = claim.id;
+        document.getElementById("claim-text").innerHTML = claim.text;
+        document.getElementById("claim-counter").textContent = `${
+          index + 1
+        } / ${claims.length}`;
+
+        // Update navigation buttons
+        document.getElementById("prev-btn").disabled = historyIndex === 0;
+        document.getElementById("next-btn").disabled =
+          index === claims.length - 1 && historyIndex === history.length - 1;
+
+        // Add click handlers to links
+        const links = document.querySelectorAll(".claim-text a");
+        links.forEach((link) => {
+          link.onclick = (e) => {
+            e.preventDefault();
+            const targetClaimId = link.getAttribute("data-claim");
+            const targetIndex = claims.findIndex((c) => c.id === targetClaimId);
+            if (targetIndex !== -1) {
+              // Add to history
+              history = history.slice(0, historyIndex + 1);
+              history.push(targetIndex);
+              historyIndex++;
+              currentIndex = targetIndex;
+              displayClaim(targetIndex);
+            }
+          };
+        });
+      }
+
+      function navigate(direction) {
+        if (direction === -1 && historyIndex > 0) {
+          historyIndex--;
+          currentIndex = history[historyIndex];
+          displayClaim(currentIndex);
+        } else if (direction === 1) {
+          if (historyIndex < history.length - 1) {
+            historyIndex++;
+            currentIndex = history[historyIndex];
+            displayClaim(currentIndex);
+          } else if (currentIndex < claims.length - 1) {
+            currentIndex++;
+            history.push(currentIndex);
+            historyIndex++;
+            displayClaim(currentIndex);
+          }
+        }
+      }
+
+      function goHome() {
+        currentIndex = 0;
+        history = [0];
+        historyIndex = 0;
+        displayClaim(0);
+      }
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") navigate(-1);
+        if (e.key === "ArrowRight") navigate(1);
+      });
+
+      // Initialize
+      displayClaim(0);
+    </script>
+  </body>
+</html>
