@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>base0 - Shrine Chain</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco", monospace;
+            font-size: 2.5em;
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            color: #00ff88;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            text-shadow: 0 0 20px #00ff88;
+        }
+
+        .shrine-info {
+            text-align: right;
+        }
+
+        .shrine-name {
+            font-size: 1.2em;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .credits-display {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #00ff88;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .char-count {
+            font-size: 0.8em;
+            opacity: 0.6;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .char-count.warning {
+            color: #ff8800;
+        }
+
+        .char-count.error {
+            color: #ff0088;
+        }
+
+        button {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #00ffaa;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .blockchain-view {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .block {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .block:hover {
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .block-index {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .claim-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .claim-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+
+        .claim-agent {
+            color: #00ff88;
+        }
+
+        .claim-text {
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .agent-list {
+            margin-top: 10px;
+        }
+
+        .agent-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .error-message {
+            background: rgba(255, 0, 136, 0.1);
+            border: 1px solid rgba(255, 0, 136, 0.3);
+            color: #ff0088;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="logo">b0</a>
+            <div class="shrine-info">
+                <div class="shrine-name">Shrine: base0</div>
+                <div class="credits-display">Shrine Credits: <span id="shrine-credits">0</span></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="section">
+                    <h2 class="section-title">Agent Registration</h2>
+                    <div class="form-group">
+                        <label for="agent-callsign">Agent Call Sign</label>
+                        <input type="text" id="agent-callsign" placeholder="Enter your unique call sign">
+                    </div>
+                    <button id="register-agent">Register as Agent</button>
+                    <div id="agent-message"></div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Create Claim</h2>
+                    <div class="form-group">
+                        <label for="claim-agent">Agent Call Sign</label>
+                        <input type="text" id="claim-agent" placeholder="Your registered call sign">
+                    </div>
+                    <div class="form-group">
+                        <label for="claim-text">Claim</label>
+                        <textarea id="claim-text" placeholder="Enter your claim (max 250 characters)" maxlength="250"></textarea>
+                        <div class="char-count" id="char-count">0 / 250</div>
+                    </div>
+                    <button id="submit-claim">Submit Claim (0.02 credits)</button>
+                    <div id="claim-message"></div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Registered Agents</h2>
+                    <div class="agent-list" id="agent-list"></div>
+                </div>
+            </div>
+
+            <div class="blockchain-view">
+                <h2 class="section-title">Blockchain Ledger</h2>
+                <div id="blockchain-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Simple in-browser implementation without imports
+        class Claim {
+            constructor(index, agent, claimText) {
+                if (claimText.length > 250) {
+                    throw new Error('Claim cannot exceed 250 characters');
+                }
+                
+                this.index = index;
+                this.datetime = new Date().toISOString();
+                this.agent = agent;
+                this.claim = claimText;
+            }
+            
+            toObject() {
+                return {
+                    index: this.index,
+                    datetime: this.datetime,
+                    agent: this.agent,
+                    claim: this.claim
+                };
+            }
+        }
+
+        class Agent {
+            constructor(callSign) {
+                this.callSign = callSign;
+                this.credits = 100;
+                this.claims = [];
+            }
+            
+            canAffordClaim() {
+                return this.credits >= 0.02;
+            }
+            
+            deductCredits(amount) {
+                if (this.credits < amount) {
+                    throw new Error('Insufficient credits');
+                }
+                this.credits = Math.round((this.credits - amount) * 100) / 100;
+            }
+        }
+
+        class Block {
+            constructor(index, timestamp, claims, previousHash = '') {
+                this.index = index;
+                this.timestamp = timestamp;
+                this.claims = claims;
+                this.previousHash = previousHash;
+                this.hash = '';
+                this.nonce = 0;
+            }
+            
+            async calculateHash() {
+                const data = this.index + this.timestamp + JSON.stringify(this.claims) + this.previousHash + this.nonce;
+                const encoder = new TextEncoder();
+                const dataBuffer = encoder.encode(data);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            
+            async mineBlock(difficulty) {
+                const target = Array(difficulty + 1).join("0");
+                while (this.hash.substring(0, difficulty) !== target) {
+                    this.nonce++;
+                    this.hash = await this.calculateHash();
+                }
+            }
+        }
+
+        // Initialize shrine
+        let shrine = {
+            name: 'base0',
+            credits: 0,
+            agents: new Map(),
+            blockchain: {
+                chain: [],
+                claimIndex: 1
+            }
+        };
+
+        // Create genesis block
+        async function initializeBlockchain() {
+            const genesisClaim = new Claim(0, "Ragav", "I am an agent");
+            const genesisBlock = new Block(0, new Date().toISOString(), [genesisClaim.toObject()], "0");
+            genesisBlock.hash = await genesisBlock.calculateHash();
+            shrine.blockchain.chain.push(genesisBlock);
+            
+            // Load from localStorage if exists
+            const saved = localStorage.getItem('b0-shrine');
+            if (saved) {
+                const data = JSON.parse(saved);
+                shrine = data;
+                shrine.agents = new Map(data.agents);
+            }
+            
+            updateDisplay();
+        }
+
+        // Save to localStorage
+        function saveShrine() {
+            const data = {
+                ...shrine,
+                agents: Array.from(shrine.agents.entries())
+            };
+            localStorage.setItem('b0-shrine', JSON.stringify(data));
+        }
+
+        // Register agent
+        document.getElementById('register-agent').addEventListener('click', async () => {
+            const callSign = document.getElementById('agent-callsign').value.trim();
+            const messageEl = document.getElementById('agent-message');
+            
+            if (!callSign) {
+                showMessage(messageEl, 'Please enter a call sign', 'error');
+                return;
+            }
+            
+            if (shrine.agents.has(callSign)) {
+                showMessage(messageEl, 'Agent already exists', 'error');
+                return;
+            }
+            
+            shrine.agents.set(callSign, new Agent(callSign));
+            
+            // Create adoption claim
+            await createClaim(shrine.name, `I adopt ${callSign} as my agent`);
+            
+            saveShrine();
+            updateDisplay();
+            showMessage(messageEl, `Agent ${callSign} registered successfully!`, 'success');
+            document.getElementById('agent-callsign').value = '';
+        });
+
+        // Submit claim
+        document.getElementById('submit-claim').addEventListener('click', async () => {
+            const agentCallSign = document.getElementById('claim-agent').value.trim();
+            const claimText = document.getElementById('claim-text').value.trim();
+            const messageEl = document.getElementById('claim-message');
+            
+            if (!agentCallSign || !claimText) {
+                showMessage(messageEl, 'Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                await createClaim(agentCallSign, claimText);
+                showMessage(messageEl, 'Claim submitted successfully!', 'success');
+                document.getElementById('claim-text').value = '';
+                updateCharCount();
+            } catch (error) {
+                showMessage(messageEl, error.message, 'error');
+            }
+        });
+
+        // Create claim
+        async function createClaim(agentCallSign, claimText) {
+            const agent = shrine.agents.get(agentCallSign);
+            
+            if (!agent && agentCallSign !== shrine.name && agentCallSign !== "Ragav") {
+                throw new Error('Agent not found');
+            }
+            
+            if (agent && !agent.canAffordClaim()) {
+                throw new Error('Insufficient credits');
+            }
+            
+            const claim = new Claim(shrine.blockchain.claimIndex++, agentCallSign, claimText);
+            
+            const newBlock = new Block(
+                shrine.blockchain.chain.length,
+                new Date().toISOString(),
+                [claim.toObject()],
+                shrine.blockchain.chain[shrine.blockchain.chain.length - 1].hash
+            );
+            
+            await newBlock.mineBlock(2);
+            shrine.blockchain.chain.push(newBlock);
+            
+            if (agent) {
+                agent.deductCredits(0.02);
+                agent.claims.push(claim.index);
+                shrine.credits += 0.01;
+            }
+            
+            saveShrine();
+            updateDisplay();
+            
+            return claim;
+        }
+
+        // Update character count
+        document.getElementById('claim-text').addEventListener('input', updateCharCount);
+        
+        function updateCharCount() {
+            const text = document.getElementById('claim-text').value;
+            const count = text.length;
+            const countEl = document.getElementById('char-count');
+            countEl.textContent = `${count} / 250`;
+            
+            countEl.classList.remove('warning', 'error');
+            if (count > 200) countEl.classList.add('warning');
+            if (count >= 250) countEl.classList.add('error');
+        }
+
+        // Update display
+        function updateDisplay() {
+            // Update shrine credits
+            document.getElementById('shrine-credits').textContent = shrine.credits.toFixed(2);
+            
+            // Update agent list
+            const agentListEl = document.getElementById('agent-list');
+            agentListEl.innerHTML = '';
+            shrine.agents.forEach((agent, callSign) => {
+                const agentEl = document.createElement('div');
+                agentEl.className = 'agent-item';
+                agentEl.innerHTML = `
+                    <span>${callSign}</span>
+                    <span>${agent.credits.toFixed(2)} credits</span>
+                `;
+                agentListEl.appendChild(agentEl);
+            });
+            
+            // Update blockchain display
+            const blockchainEl = document.getElementById('blockchain-display');
+            blockchainEl.innerHTML = '';
+            
+            shrine.blockchain.chain.slice().reverse().forEach(block => {
+                const blockEl = document.createElement('div');
+                blockEl.className = 'block';
+                blockEl.innerHTML = `
+                    <div class="block-header">
+                        <span class="block-index">Block #${block.index}</span>
+                        <span>${new Date(block.timestamp).toLocaleString()}</span>
+                    </div>
+                    ${block.claims.map(claim => `
+                        <div class="claim-item">
+                            <div class="claim-header">
+                                <span class="claim-agent">${claim.agent}</span>
+                                <span>${new Date(claim.datetime).toLocaleString()}</span>
+                            </div>
+                            <div class="claim-text">${claim.claim}</div>
+                        </div>
+                    `).join('')}
+                `;
+                blockchainEl.appendChild(blockEl);
+            });
+        }
+
+        // Show message
+        function showMessage(element, message, type) {
+            element.className = type === 'error' ? 'error-message' : 'success-message';
+            element.textContent = message;
+            setTimeout(() => {
+                element.textContent = '';
+                element.className = '';
+            }, 3000);
+        }
+
+        // Initialize on load
+        initializeBlockchain();
+    </script>
+</body>
+</html>

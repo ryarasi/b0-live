@@ -134,6 +134,27 @@
         opacity: 0.6;
       }
 
+      .enter-btn {
+        background: #00ff88;
+        color: #000;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin: 30px 0;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .enter-btn:hover {
+        background: #00ffaa;
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+        transform: translateY(-2px);
+      }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -191,6 +212,8 @@
         <div class="claim-id" id="claim-id"></div>
         <div class="claim-text" id="claim-text"></div>
       </div>
+
+      <a href="chain.html" class="enter-btn">Enter base0</a>
 
       <div class="navigation">
         <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">
