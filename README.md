@@ -2,6 +2,12 @@
 
 b0 is a self-sovereign identity protocol that allows agents to author claims in a Zero Trust, Zero Knowledge, Zero Hardware environment.
 
+## 📍 Repository Location
+
+This repository is located at: `/Users/ryarasi/code/projects/b0/repos/b0-live/`
+
+Parent project structure can be found at: `/Users/ryarasi/code/projects/b0/`
+
 ## 🌐 Live Site
 
 Visit [b0.live](https://b0.live) to explore the protocol.
